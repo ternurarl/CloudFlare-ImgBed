@@ -11,3 +11,8 @@ node_modules
 .vscode/
 .claude/
 .agents/
+
+# Frontend build artifacts
+frontend-dist/**/*.map
+frontend-dist/**/*.map.gz
+frontend-dist/**/*.gz
