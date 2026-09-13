@@ -93,6 +93,7 @@ export async function getOthersConfig(db, env) {
     const kvCloudflareApiToken = settingsKV.cloudflareApiToken || {}
     settings.cloudflareApiToken = {
         CF_ZONE_ID: kvCloudflareApiToken.CF_ZONE_ID || env.CF_ZONE_ID,
+        CF_API_TOKEN: kvCloudflareApiToken.CF_API_TOKEN || env.CF_API_TOKEN,
         CF_EMAIL: kvCloudflareApiToken.CF_EMAIL || env.CF_EMAIL,
         CF_API_KEY: kvCloudflareApiToken.CF_API_KEY || env.CF_API_KEY,
         fixed: false,

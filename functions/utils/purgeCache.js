@@ -10,18 +10,32 @@ export async function purgeCFCache(env, cdnUrl) {
         // 读取其他设置
         othersConfig = await fetchOthersConfig(env);
         cfZoneId = othersConfig.cloudflareApiToken.CF_ZONE_ID;
-        cfEmail = othersConfig.cloudflareApiToken.CF_EMAIL;
-        cfApiKey = othersConfig.cloudflareApiToken.CF_API_KEY;
 
-        // 如果没有配置Cloudflare API，跳过缓存清除
-        if (!cfZoneId || !cfEmail || !cfApiKey) {
+        // 如果没有配置Zone ID，跳过缓存清除
+        if (!cfZoneId) {
             return;
+        }
+
+        // 优先使用 Scoped API Token，回退到 Global API Key
+        const cfApiToken = othersConfig.cloudflareApiToken.CF_API_TOKEN;
+        const headers = {'Content-Type': 'application/json'};
+
+        if (cfApiToken) {
+            headers['Authorization'] = `Bearer ${cfApiToken}`;
+        } else {
+            cfEmail = othersConfig.cloudflareApiToken.CF_EMAIL;
+            cfApiKey = othersConfig.cloudflareApiToken.CF_API_KEY;
+            if (!cfEmail || !cfApiKey) {
+                return;
+            }
+            headers['X-Auth-Email'] = cfEmail;
+            headers['X-Auth-Key'] = cfApiKey;
         }
 
         // 清除CDN缓存
         const options = {
             method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-Auth-Email': `${cfEmail}`, 'X-Auth-Key': `${cfApiKey}`},
+            headers,
             body: `{"files":["${ cdnUrl }"]}`
         };
         await fetch(`https://api.cloudflare.com/client/v4/zones/${ cfZoneId }/purge_cache`, options);
